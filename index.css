@@ -1,0 +1,214 @@
+/* ====================================
+   Index (Home) Page Styles
+   ==================================== */
+
+/* Post Creation Box */
+.create-post-box {
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.create-post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* Post Mode Switching */
+.post-mode {
+    display: none;
+}
+
+.post-mode.active {
+    display: block;
+}
+
+.create-post-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    resize: vertical;
+    transition: border-color 0.2s ease, background-color 0.3s ease;
+}
+
+.create-post-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.create-post-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* Image Upload Section */
+.image-upload-section {
+    margin-bottom: 12px;
+}
+
+.image-drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: var(--input-bg);
+}
+
+.image-drop-zone:hover {
+    border-color: var(--accent-primary);
+    background-color: var(--accent-light);
+}
+
+.drop-zone-content svg {
+    width: 48px;
+    height: 48px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.drop-zone-content p {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.drop-zone-content span {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* Caption Input */
+.caption-section {
+    margin-top: 12px;
+}
+
+.caption-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+}
+
+.caption-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.caption-input::placeholder {
+    color: var(--text-muted);
+}
+
+.create-post-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.post-type-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.post-type-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 9999px;
+    background-color: var(--accent-light);
+    color: var(--accent-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.post-type-btn:hover {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.post-type-btn.active {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.post-type-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Image Preview */
+.image-preview-container {
+    margin-top: 12px;
+    position: relative;
+    display: none;
+}
+
+.image-preview-container.active {
+    display: block;
+}
+
+.image-preview {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.remove-image-btn:hover {
+    background-color: var(--danger);
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .create-post-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .post-type-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+}

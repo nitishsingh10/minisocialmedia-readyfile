@@ -14,6 +14,7 @@
         })();
     </script>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="settings.css">
 </head>
 
 <body>
@@ -284,47 +285,7 @@
     </main>
 
     <script src="app.js"></script>
-    <script>
-        // Calculate storage used
-        function calculateStorage() {
-            let total = 0;
-            for (let key in localStorage) {
-                if (localStorage.hasOwnProperty(key)) {
-                    total += localStorage[key].length * 2; // UTF-16 uses 2 bytes per character
-                }
-            }
-            const kb = (total / 1024).toFixed(2);
-            const mb = (total / (1024 * 1024)).toFixed(2);
-            document.getElementById('storageUsed').textContent = total > 1024 * 1024
-                ? `${mb} MB used`
-                : `${kb} KB used`;
-        }
-
-        // Export data
-        function exportData() {
-            const posts = localStorage.getItem('socialapp_posts') || '[]';
-            const user = localStorage.getItem('socialapp_user') || '{}';
-            const settings = localStorage.getItem('socialapp_settings') || '{}';
-
-            const data = {
-                posts: JSON.parse(posts),
-                user: JSON.parse(user),
-                settings: JSON.parse(settings),
-                exportDate: new Date().toISOString()
-            };
-
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'socialapp_export.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // Initialize storage calculation
-        document.addEventListener('DOMContentLoaded', calculateStorage);
-    </script>
+    <script src="settings.js"></script>
 </body>
 
 </html>

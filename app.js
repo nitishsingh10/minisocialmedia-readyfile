@@ -1,6 +1,6 @@
 /* ====================================
    SocialApp - Mini Social Media Platform
-   Core JavaScript Functionality
+   Core/Shared JavaScript Functionality
    ==================================== */
 
 // Local Storage Keys
@@ -19,9 +19,6 @@ const DEFAULT_USER = {
   avatar: null,
   bio: ''
 };
-
-// Current post mode
-let currentPostMode = 'text';
 
 /* ====================================
    Utility Functions
@@ -138,7 +135,7 @@ function initTheme() {
   applyTheme(savedTheme);
 }
 
-// Toggle theme (only from settings page)
+// Toggle theme
 function toggleTheme() {
   const currentTheme = getTheme();
   const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -147,47 +144,8 @@ function toggleTheme() {
 }
 
 /* ====================================
-   User Profile Management
+   Avatar Display
    ==================================== */
-
-// Load user profile and update UI
-function loadUserProfile() {
-  const user = getUser();
-
-  // Update profile page elements
-  const profileName = document.getElementById('profileName');
-  const profileHandle = document.getElementById('profileHandle');
-  const profileAvatarImage = document.getElementById('profileAvatarImage');
-  const profileAvatarInitial = document.getElementById('profileAvatarInitial');
-
-  if (profileName) profileName.textContent = user.name || 'User';
-  if (profileHandle) profileHandle.textContent = user.handle || '@user';
-
-  if (user.avatar && profileAvatarImage) {
-    profileAvatarImage.src = user.avatar;
-    profileAvatarImage.style.display = 'block';
-    if (profileAvatarInitial) profileAvatarInitial.style.display = 'none';
-  } else if (profileAvatarInitial) {
-    profileAvatarInitial.textContent = (user.name || 'U').charAt(0).toUpperCase();
-    profileAvatarInitial.style.display = 'block';
-    if (profileAvatarImage) profileAvatarImage.style.display = 'none';
-  }
-
-  // Show/hide remove avatar button
-  const removeAvatarBtn = document.getElementById('removeAvatarBtn');
-  if (removeAvatarBtn) {
-    removeAvatarBtn.style.display = user.avatar ? 'flex' : 'none';
-  }
-
-  // Update edit modal fields
-  const editName = document.getElementById('editName');
-  const editHandle = document.getElementById('editHandle');
-  const editBio = document.getElementById('editBio');
-
-  if (editName) editName.value = user.name || '';
-  if (editHandle) editHandle.value = (user.handle || '@user').replace('@', '');
-  if (editBio) editBio.value = user.bio || '';
-}
 
 // Update avatar in navigation/feed
 function updateAvatarDisplay() {
@@ -201,79 +159,6 @@ function updateAvatarDisplay() {
       avatar.innerHTML = (user.name || 'U').charAt(0).toUpperCase();
     }
   });
-}
-
-// Handle avatar change
-function handleAvatarChange(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  if (!file.type.startsWith('image/')) {
-    alert('Please select an image file');
-    return;
-  }
-
-  if (file.size > 2 * 1024 * 1024) {
-    alert('Image size should be less than 2MB');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const user = getUser();
-    user.avatar = e.target.result;
-    saveUser(user);
-    loadUserProfile();
-    updateAvatarDisplay();
-  };
-  reader.readAsDataURL(file);
-}
-
-// Handle avatar removal
-function handleRemoveAvatar() {
-  const user = getUser();
-  user.avatar = null;
-  saveUser(user);
-  loadUserProfile();
-  updateAvatarDisplay();
-}
-
-// Open edit profile modal
-function openEditProfileModal() {
-  const modal = document.getElementById('editProfileModal');
-  if (modal) {
-    modal.classList.add('active');
-    loadUserProfile(); // Refresh data in form
-  }
-}
-
-// Close edit profile modal
-function closeEditProfileModal() {
-  const modal = document.getElementById('editProfileModal');
-  if (modal) {
-    modal.classList.remove('active');
-  }
-}
-
-// Save profile changes
-function saveProfile() {
-  const editName = document.getElementById('editName');
-  const editHandle = document.getElementById('editHandle');
-  const editBio = document.getElementById('editBio');
-
-  const user = getUser();
-
-  if (editName) user.name = editName.value.trim() || 'User';
-  if (editHandle) user.handle = '@' + (editHandle.value.trim() || 'user').replace('@', '');
-  if (editBio) user.bio = editBio.value.trim();
-
-  // Update initial based on new name
-  user.initial = user.name.charAt(0).toUpperCase();
-
-  saveUser(user);
-  loadUserProfile();
-  updateAvatarDisplay();
-  closeEditProfileModal();
 }
 
 /* ====================================
@@ -411,128 +296,9 @@ function renderPosts(containerId, postsToRender = null) {
   });
 }
 
-// Render user's posts on profile page
-function renderUserPosts() {
-  const posts = getPosts();
-  renderPosts('userPosts', posts);
-
-  // Update post count
-  const postCountEl = document.getElementById('postCount');
-  if (postCountEl) {
-    postCountEl.textContent = posts.length;
-  }
-}
-
 /* ====================================
    Event Handlers
    ==================================== */
-
-// Handle post creation
-function handleCreatePost(event) {
-  event.preventDefault();
-
-  if (currentPostMode === 'text') {
-    // Blog mode
-    const textarea = document.getElementById('postContent');
-    const content = textarea.value.trim();
-
-    if (!content) return;
-
-    createPost('text', content, null);
-    textarea.value = '';
-  } else {
-    // Image mode
-    const imagePreview = document.getElementById('imagePreview');
-    const captionInput = document.getElementById('imageCaption');
-    const hasImage = document.getElementById('imagePreviewContainer').classList.contains('active');
-
-    if (!hasImage) {
-      alert('Please select an image to post');
-      return;
-    }
-
-    const imageData = imagePreview.src;
-    const caption = captionInput ? captionInput.value.trim() : '';
-
-    createPost('image', caption, imageData);
-
-    // Reset image mode
-    handleRemoveImage();
-    if (captionInput) captionInput.value = '';
-  }
-
-  // Reset to blog mode
-  handlePostTypeClick('text');
-
-  // Refresh feed
-  renderPosts('feed');
-}
-
-// Handle post type button click
-function handlePostTypeClick(type) {
-  currentPostMode = type;
-
-  // Update button states
-  document.querySelectorAll('.post-type-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`.post-type-btn[data-type="${type}"]`)?.classList.add('active');
-
-  // Switch modes
-  const blogMode = document.getElementById('blogMode');
-  const imageMode = document.getElementById('imageMode');
-
-  if (blogMode && imageMode) {
-    if (type === 'text') {
-      blogMode.classList.add('active');
-      imageMode.classList.remove('active');
-    } else {
-      blogMode.classList.remove('active');
-      imageMode.classList.add('active');
-    }
-  }
-}
-
-// Handle image selection
-function handleImageSelect(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  // Validate file type
-  if (!file.type.startsWith('image/')) {
-    alert('Please select an image file');
-    return;
-  }
-
-  // Validate file size (max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert('Image size should be less than 5MB');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const imagePreview = document.getElementById('imagePreview');
-    const previewContainer = document.getElementById('imagePreviewContainer');
-    const dropZone = document.getElementById('imageDropZone');
-
-    if (imagePreview) imagePreview.src = e.target.result;
-    if (previewContainer) previewContainer.classList.add('active');
-    if (dropZone) dropZone.style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-// Handle removing image preview
-function handleRemoveImage() {
-  const imagePreview = document.getElementById('imagePreview');
-  const previewContainer = document.getElementById('imagePreviewContainer');
-  const imageInput = document.getElementById('imageInput');
-  const dropZone = document.getElementById('imageDropZone');
-
-  if (imagePreview) imagePreview.src = '';
-  if (previewContainer) previewContainer.classList.remove('active');
-  if (imageInput) imageInput.value = '';
-  if (dropZone) dropZone.style.display = 'block';
-}
 
 // Handle post deletion
 function handleDeletePost(postId) {
@@ -556,7 +322,7 @@ function handleDeletePost(postId) {
           renderPosts('feed');
         }
         if (userPosts && userPosts.children.length === 0) {
-          renderUserPosts();
+          renderPosts('userPosts', []);
         }
         if (popularPosts && popularPosts.children.length === 0) {
           renderPosts('popularPosts', []);
@@ -595,126 +361,11 @@ function handleLikePost(postId) {
   }
 }
 
-// Handle theme toggle (settings page only)
-function handleThemeToggle() {
-  toggleTheme();
-}
-
-// Handle clear data
-function handleClearData() {
-  if (confirm('Are you sure you want to delete all posts and reset settings? This cannot be undone.')) {
-    clearAllData();
-    applyTheme('light');
-
-    // Update toggle
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-      themeToggle.checked = false;
-    }
-
-    alert('All data has been cleared!');
-
-    // Redirect to home
-    window.location.href = 'index.html';
-  }
-}
-
 /* ====================================
-   Page Initialization
-   ==================================== */
-
-// Initialize feed page
-function initFeedPage() {
-  // Update avatar display
-  updateAvatarDisplay();
-
-  // Render posts
-  renderPosts('feed');
-
-  // Set up form submission
-  const postForm = document.getElementById('createPostForm');
-  if (postForm) {
-    postForm.addEventListener('submit', handleCreatePost);
-  }
-
-  // Set up image input
-  const imageInput = document.getElementById('imageInput');
-  if (imageInput) {
-    imageInput.addEventListener('change', handleImageSelect);
-  }
-
-  // Set up drag and drop for image zone
-  const dropZone = document.getElementById('imageDropZone');
-  if (dropZone) {
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.style.borderColor = 'var(--accent-primary)';
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.style.borderColor = '';
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.style.borderColor = '';
-
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        const imageInput = document.getElementById('imageInput');
-        imageInput.files = files;
-        handleImageSelect({ target: { files: files } });
-      }
-    });
-  }
-}
-
-// Initialize profile page
-function initProfilePage() {
-  loadUserProfile();
-  renderUserPosts();
-}
-
-// Initialize settings page
-function initSettingsPage() {
-  // Set up theme toggle
-  const themeToggle = document.getElementById('themeToggle');
-  if (themeToggle) {
-    themeToggle.checked = getTheme() === 'dark';
-    themeToggle.addEventListener('change', handleThemeToggle);
-  }
-
-  // Set up clear data button
-  const clearDataBtn = document.getElementById('clearDataBtn');
-  if (clearDataBtn) {
-    clearDataBtn.addEventListener('click', handleClearData);
-  }
-}
-
-// Initialize discover page
-function initDiscoverPage() {
-  // Discover page has its own inline script for rendering
-}
-
-/* ====================================
-   Document Ready
+   Document Ready - Initialize Theme
    ==================================== */
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Initialize theme first
+  // Initialize theme first (shared across all pages)
   initTheme();
-
-  // Determine which page we're on and initialize accordingly
-  const path = window.location.pathname;
-
-  if (path.includes('profile.html')) {
-    initProfilePage();
-  } else if (path.includes('settings.html')) {
-    initSettingsPage();
-  } else if (path.includes('discover.html')) {
-    initDiscoverPage();
-  } else {
-    // Default to feed page (index.html or root)
-    initFeedPage();
-  }
 });
